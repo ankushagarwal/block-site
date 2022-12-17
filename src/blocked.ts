@@ -1,4 +1,4 @@
-import { VALIDATORS, CounterPeriod } from "./storage";
+import storage, { VALIDATORS, CounterPeriod, Schema } from "./storage";
 import getBlockedMessage from "./helpers/get-blocked-message";
 
 window.addEventListener("DOMContentLoaded", () => {
@@ -19,4 +19,19 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 
   (document.getElementById("message") as HTMLParagraphElement).innerHTML = message;
+
+  const disableButton = document.getElementById("disable-btn") as HTMLButtonElement;
+  // add event listener to disable button
+  disableButton.addEventListener("click", () => {
+    storage.get(["blocked"], (blocked) => {
+      // remove rule from blocked list
+      blocked.blocked = blocked.blocked.filter((blockedRule) => blockedRule !== rule);
+      // add a new value to blocked.blocked
+      blocked.blocked.push(`!${rule}`);
+      // save new blocked list
+      storage.set<Pick<Schema, "blocked">>({ blocked: blocked.blocked });
+      // navigate to options page
+      window.location.href = `https://${rule}`;
+    });
+  });
 });
